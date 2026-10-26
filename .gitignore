@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.env
+.env.local
+*.local
+.clasprc.json
+supabase/.branches
+supabase/.temp
+
+# ไม่อยู่ใน repo: เครื่องมือของ agent และระบบ GAS เดิม (มีค่าลับเขียนไว้ในโค้ด)
+.agents/
+.claude/skills/
+skills-lock.json
+gas/

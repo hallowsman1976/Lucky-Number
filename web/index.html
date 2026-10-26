@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F6F5F8" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111017" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎟️</text></svg>" />
+    <title>ลงทะเบียนรับสิทธิ์จับรางวัล</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+    <script type="module" src="/src/register/main.ts"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="reg-header">
+        <div class="logo-badge"><img src="/logo.png" alt="โลโก้สหกรณ์" /></div>
+        <h1 id="eventTitle">กำลังโหลด...</h1>
+        <p>ลงทะเบียนเพื่อรับสิทธิ์ลุ้นรางวัล</p>
+      </div>
+
+      <form id="formView" class="reg-card" novalidate hidden>
+        <div class="field">
+          <label for="memberId">เลขสมาชิก</label>
+          <div class="input-wrap">
+            <i class="ph ph-identification-card leading"></i>
+            <input id="memberId" type="text" inputmode="numeric" maxlength="30" placeholder="กรอกเลขสมาชิกของท่าน" autocomplete="off" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="fullName">ชื่อ-นามสกุล</label>
+          <div class="input-wrap">
+            <i class="ph ph-user leading"></i>
+            <input id="fullName" type="text" maxlength="100" placeholder="เช่น สมชาย ใจดี" autocomplete="off" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="unit">หน่วย</label>
+          <div class="input-wrap">
+            <i class="ph ph-buildings leading"></i>
+            <select id="unit">
+              <option value="">-- เลือกหน่วยงาน --</option>
+            </select>
+            <i class="ph ph-caret-down trailing"></i>
+          </div>
+        </div>
+
+        <button id="submitBtn" class="btn-submit" type="submit">
+          <i class="ph ph-ticket"></i>
+          <span>ลงทะเบียน</span>
+        </button>
+
+        <p class="hint">
+          <i class="ph ph-shield-check"></i>
+          <span>เลขสมาชิกแต่ละหมายเลขลงทะเบียนได้เพียงครั้งเดียว</span>
+        </p>
+      </form>
+
+      <div id="successView" class="reg-card status-card" hidden>
+        <div class="status-icon success"><i class="ph-fill ph-check-circle"></i></div>
+        <h1>ลงทะเบียนสำเร็จ</h1>
+        <p>ขอบคุณที่ลงทะเบียน ขอให้โชคดีในการจับรางวัล 🎉</p>
+      </div>
+
+      <div id="closedView" class="reg-card status-card" hidden>
+        <div class="status-icon muted"><i class="ph-fill ph-lock-simple"></i></div>
+        <h1 id="closedTitle">ปิดรับลงทะเบียนแล้ว</h1>
+        <p id="closedText">ขออภัย ขณะนี้ไม่ได้เปิดรับลงทะเบียน</p>
+      </div>
+    </div>
+  </body>
+</html>

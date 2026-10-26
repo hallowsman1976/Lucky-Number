@@ -1,0 +1,14 @@
+{
+  "name": "random-goodluck",
+  "private": true,
+  "scripts": {
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:test": "supabase test db",
+    "db:push": "supabase db push"
+  },
+  "devDependencies": {
+    "supabase": "2.122.0"
+  }
+}

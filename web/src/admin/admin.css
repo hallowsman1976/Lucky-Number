@@ -1,0 +1,73 @@
+.admin-wrap { max-width: 1000px; margin: 0 auto; padding: 22px 16px 60px; display: flex; flex-direction: column; gap: 16px; }
+.grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+@media (min-width: 860px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+.panel { padding: 20px; min-width: 0; }
+.panel h2 { font-size: 16px; margin: 0 0 14px; font-weight: 800; }
+.panel h3 { font-size: 15px; margin: 0 0 6px; font-weight: 800; }
+.small { font-size: 13px; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.grow { flex: 2 1 180px; width: auto; }
+.num { flex: 1 1 120px; width: auto; }
+
+.header-row { justify-content: space-between; }
+.header-row h1 { font-size: 20px; margin: 0; }
+.header-logo { width: 36px; height: 36px; }
+
+.stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; }
+.stat-box { text-align: center; background: rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 12px 6px; }
+.stat-num { font-size: 22px; font-weight: 800; }
+.stat-label { font-size: 11px; color: var(--text-muted); }
+.setting-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 16px; }
+.mode-row { margin-top: 8px; padding-bottom: 20px; }
+.badge.on { background: rgba(34, 197, 94, 0.3); color: #bbf7d0; }
+.badge.off { background: rgba(239, 68, 68, 0.3); color: #fecaca; }
+
+.link-label { margin: 12px 0 4px; }
+.link-label:first-of-type { margin-top: 0; }
+.link-line { font-size: 13px; overflow-wrap: anywhere; background: rgba(255, 255, 255, 0.08); padding: 8px 12px; border-radius: 8px; }
+.link-btn { display: inline-block; margin-top: 12px; text-decoration: none; }
+
+.small-btn { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
+.mode-btn { opacity: 0.45; transform: scale(0.97); position: relative; }
+.mode-btn.active {
+  opacity: 1; transform: scale(1);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.7), 0 8px 20px rgba(0, 0, 0, 0.35) !important;
+}
+.mode-btn.active::after {
+  content: '● กำลังแสดงบนจอ'; position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%);
+  font-size: 11px; font-weight: 700; white-space: nowrap; color: #4ade80;
+}
+
+.round-head { margin-bottom: 14px; }
+#editRoundForm { margin-bottom: 14px; }
+.draw-btn { width: 100%; font-size: 18px; padding: 16px; }
+.list-label { margin: 14px 0 6px; }
+.winners-mini { max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+.wr {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  background: rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 6px 10px; font-size: 13px;
+}
+.wr.forfeited .wr-name { text-decoration: line-through; opacity: 0.6; }
+.divider { height: 1px; background: rgba(255, 255, 255, 0.15); margin: 18px 0; }
+
+.search { margin-bottom: 12px; }
+.table-wrap { max-height: 420px; overflow: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+th { color: var(--text-muted); font-weight: 700; position: sticky; top: 0; background: rgba(40, 30, 110, 0.95); }
+.tag { padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.tag-eligible { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+.tag-winner { background: rgba(250, 204, 21, 0.25); color: #facc15; }
+.tag-forfeited { background: rgba(148, 163, 184, 0.3); color: #e2e8f0; }
+.tag-disqualified { background: rgba(239, 68, 68, 0.25); color: #f87171; }
+
+.danger-panel { border-color: rgba(239, 68, 68, 0.4); }
+
+.login-card { max-width: 360px; margin: 80px auto; padding: 32px 24px; display: flex; flex-direction: column; }
+.login-card .login-icon { font-size: 40px; text-align: center; margin-bottom: 10px; }
+.login-card h2 { margin: 0 0 16px; text-align: center; }
+.login-card input { margin-bottom: 14px; }
+@media (max-width: 400px) { .login-card { margin: 40px 16px; } }
+
+.busy button, .busy input { pointer-events: none; }
+.busy { cursor: progress; }

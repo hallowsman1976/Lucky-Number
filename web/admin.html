@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#6d28d9" />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠️</text></svg>" />
+    <title>หน้าควบคุมแอดมิน</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" />
+    <script type="module" src="/src/admin/main.ts"></script>
+  </head>
+  <body>
+    <form id="loginView" class="glass-card login-card" novalidate hidden>
+      <div class="login-icon">🔒</div>
+      <h2>เข้าสู่ระบบแอดมิน</h2>
+      <label for="emailInput">อีเมล</label>
+      <input id="emailInput" type="email" autocomplete="username" required />
+      <label for="passwordInput">รหัสผ่าน</label>
+      <input id="passwordInput" type="password" autocomplete="current-password" required />
+      <button id="loginBtn" class="btn btn-primary" type="submit">เข้าสู่ระบบ</button>
+    </form>
+
+    <div id="dashboard" class="admin-wrap" hidden>
+      <header class="row header-row">
+        <div class="row">
+          <img src="/logo.png" alt="โลโก้สหกรณ์" class="header-logo" />
+          <h1 id="eventTitleHeader">-</h1>
+        </div>
+        <div class="row">
+          <span class="muted small" id="userEmail"></span>
+          <button class="btn btn-muted small-btn" id="refreshBtn" type="button">🔄 รีเฟรช</button>
+          <button class="btn btn-muted small-btn" id="logoutBtn" type="button">ออกจากระบบ</button>
+        </div>
+      </header>
+
+      <section id="noEventPanel" class="glass-card panel" hidden>
+        <h2>🎪 สร้างงาน</h2>
+        <p class="muted small">ยังไม่มีงานที่เปิดใช้อยู่ ตั้งชื่องานเพื่อเริ่มรับลงทะเบียน</p>
+        <form class="row" id="createFirstEventForm">
+          <input id="firstEventTitle" type="text" maxlength="200" placeholder="ชื่องาน" class="grow" />
+          <button class="btn btn-primary" type="submit">สร้างงาน</button>
+        </form>
+      </section>
+
+      <div id="eventPanels" hidden>
+        <div class="grid grid-2">
+          <section class="glass-card panel">
+            <h2>📊 ภาพรวม</h2>
+            <div class="stat-row">
+              <div class="stat-box"><div class="stat-num" id="statTotal">0</div><div class="stat-label">ลงทะเบียน</div></div>
+              <div class="stat-box"><div class="stat-num" id="statEligible">0</div><div class="stat-label">มีสิทธิ์</div></div>
+              <div class="stat-box"><div class="stat-num" id="statWinner">0</div><div class="stat-label">ผู้โชคดี</div></div>
+              <div class="stat-box"><div class="stat-num" id="statForfeited">0</div><div class="stat-label">สละสิทธิ์</div></div>
+              <div class="stat-box"><div class="stat-num" id="statDisqualified">0</div><div class="stat-label">ตัดสิทธิ์</div></div>
+            </div>
+
+            <div class="setting-row">
+              <span class="muted small">รับลงทะเบียน:</span>
+              <span class="badge" id="registrationBadge">-</span>
+              <button class="btn btn-muted small-btn" id="toggleRegistrationBtn" type="button">-</button>
+            </div>
+
+            <div class="setting-row">
+              <span class="muted small">โหมดจอแสดงผล:</span>
+            </div>
+            <div class="row mode-row">
+              <button id="btnModeRegister" class="btn btn-primary small-btn mode-btn" type="button">📋 โหมดลงทะเบียน (QR)</button>
+              <button id="btnModeWheel" class="btn btn-gold small-btn mode-btn" type="button">🎡 โหมดวงล้อ</button>
+            </div>
+          </section>
+
+          <section class="glass-card panel">
+            <h2>🔗 ลิงก์งาน</h2>
+            <p class="muted small link-label">ลิงก์ลงทะเบียน (QR บนจอแสดงผลชี้มาที่นี่)</p>
+            <div class="link-line" id="regUrlLine">-</div>
+            <p class="muted small link-label">ลิงก์จอแสดงผล (เปิดบนโปรเจกเตอร์)</p>
+            <div class="link-line" id="displayUrlLine">-</div>
+            <a class="btn btn-muted small-btn link-btn" id="openDisplayLink" target="_blank" rel="noopener">เปิดจอแสดงผลแท็บใหม่</a>
+          </section>
+        </div>
+
+        <section class="glass-card panel">
+          <h2>🎯 รอบปัจจุบัน</h2>
+          <div class="row round-head">
+            <span class="badge" id="roundBadge">ยังไม่ได้เริ่มรอบ</span>
+          </div>
+
+          <form class="row" id="editRoundForm" hidden>
+            <input id="editRoundName" type="text" maxlength="200" placeholder="ชื่อรอบ" class="grow" />
+            <input id="editRoundTarget" type="number" min="1" max="1000" placeholder="จำนวนที่ต้องการ" class="num" />
+            <button class="btn btn-muted" type="submit">บันทึกการแก้ไข</button>
+          </form>
+
+          <button id="drawBtn" class="btn btn-gold draw-btn" type="button">🎉 สุ่มผู้โชคดีคนถัดไป</button>
+
+          <p class="muted small list-label">ผู้โชคดีรอบนี้</p>
+          <div class="winners-mini" id="roundWinners"></div>
+
+          <div class="divider"></div>
+          <h3>เริ่มรอบใหม่</h3>
+          <p class="muted small" id="newRoundHint"></p>
+          <form class="row" id="startRoundForm">
+            <input id="roundNameInput" type="text" maxlength="200" placeholder="ชื่อรอบ เช่น รางวัลที่ 1 ทองคำ" class="grow" />
+            <input id="roundTargetInput" type="number" min="1" max="1000" placeholder="จำนวนที่ต้องการ" class="num" />
+            <button class="btn btn-primary" id="startRoundBtn" type="submit">เริ่มรอบใหม่</button>
+          </form>
+        </section>
+
+        <section class="glass-card panel">
+          <h2>👥 รายชื่อผู้ลงทะเบียน</h2>
+          <input id="searchInput" type="search" placeholder="ค้นหาด้วยเลขสมาชิกหรือชื่อ..." class="search" />
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>เลขสมาชิก</th><th>ชื่อ-นามสกุล</th><th>หน่วย</th><th>สถานะ</th><th></th></tr></thead>
+              <tbody id="peopleBody"></tbody>
+            </table>
+          </div>
+          <p class="muted small" id="peopleNote"></p>
+        </section>
+
+        <section class="glass-card panel">
+          <h2>📥 ส่งออกข้อมูล</h2>
+          <p class="muted small">ไฟล์ CSV เปิดด้วย Excel ได้ ภาษาไทยไม่เพี้ยน</p>
+          <div class="row">
+            <button class="btn btn-muted small-btn" id="exportRegistrationsBtn" type="button">ดาวน์โหลดรายชื่อผู้ลงทะเบียน</button>
+            <button class="btn btn-muted small-btn" id="exportWinnersBtn" type="button">ดาวน์โหลดรายชื่อผู้โชคดี</button>
+          </div>
+        </section>
+
+        <section class="glass-card panel danger-panel">
+          <h2>⚠️ เริ่มงานใหม่</h2>
+          <p class="muted small">งานปัจจุบันจะถูกปิด ข้อมูลเดิมยังเก็บอยู่ในระบบ และรายชื่อผู้ลงทะเบียน/ผู้โชคดีจะเริ่มนับใหม่</p>
+          <form class="row" id="newEventForm">
+            <input id="newEventTitle" type="text" maxlength="200" placeholder="ชื่องานใหม่" class="grow" />
+            <button class="btn btn-danger" type="submit">เริ่มงานใหม่</button>
+          </form>
+        </section>
+      </div>
+    </div>
+  </body>
+</html>

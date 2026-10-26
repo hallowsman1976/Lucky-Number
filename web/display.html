@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#6d28d9" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎡</text></svg>" />
+    <title>จอแสดงผล - จับรางวัล</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" />
+    <script type="module" src="/src/display/main.ts"></script>
+  </head>
+  <body>
+    <div class="stage">
+      <div class="display-logo"><img src="/logo.png" alt="โลโก้สหกรณ์" /></div>
+      <div class="event-title" id="eventTitle">กำลังโหลด...</div>
+
+      <div id="noEventPanel" class="muted" hidden>ยังไม่มีงานที่เปิดใช้อยู่</div>
+
+      <div id="registerPanel" hidden>
+        <div id="qrBox"><img id="qrImg" alt="QR ลงทะเบียน" /></div>
+        <div class="url-pill" id="regUrl">-</div>
+        <div id="closedNotice" class="closed-notice" hidden>ปิดรับลงทะเบียนแล้ว</div>
+        <div class="counter-box">
+          <div class="counter-num" id="totalCount">0</div>
+          <div class="counter-label">ลงทะเบียนแล้ว (คน)</div>
+        </div>
+        <p class="muted" id="registerHint">สแกน QR Code เพื่อลงทะเบียนรับสิทธิ์ลุ้นรางวัล</p>
+      </div>
+
+      <div id="wheelPanel" hidden>
+        <div class="round-pill" id="roundName">รอบ: -</div>
+        <div class="progress-text" id="progressText">0 / 0</div>
+        <div class="wheel-wrap">
+          <div class="wheel" id="wheel"></div>
+          <div class="wheel-hub"></div>
+          <div class="wheel-pointer">▼</div>
+        </div>
+        <div class="slot-display" id="slotDisplay">พร้อมจับรางวัล...</div>
+
+        <div class="winners-panel">
+          <h3>🏆 ผู้โชคดีทั้งหมดของงานนี้</h3>
+          <div id="winnersList"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="revealOverlay" hidden>
+      <div class="reveal-card" id="revealCard">
+        <div class="reveal-label">🎉 ผู้โชคดี 🎉</div>
+        <div class="reveal-name" id="revealName">-</div>
+        <div class="reveal-unit" id="revealUnit">-</div>
+        <div class="reveal-id" id="revealId">-</div>
+      </div>
+    </div>
+  </body>
+</html>
