@@ -77,6 +77,7 @@ npm run build --prefix web
    select id from auth.users where email = 'อีเมลแอดมิน';
    ```
 5. **Authentication → URL Configuration**: ตั้ง Site URL เป็นโดเมนเว็บจริง
+6. (ถ้า build บนเครื่อง) ใส่ URL และ publishable key ของโปรเจกต์ใน `web/.env.production.local` ซึ่ง `npm run build` จะใช้แทน `.env.local` ส่วน `npm run dev` ยังต่อ Supabase local เหมือนเดิม
 
 ### 2. Cloudflare Pages
 

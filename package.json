@@ -6,7 +6,7 @@
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
     "db:test": "supabase test db",
-    "db:push": "supabase db push"
+    "db:push": "supabase db push --linked"
   },
   "devDependencies": {
     "supabase": "2.122.0"
