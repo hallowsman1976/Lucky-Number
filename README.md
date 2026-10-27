@@ -79,12 +79,16 @@ npm run build --prefix web
 5. **Authentication → URL Configuration**: ตั้ง Site URL เป็นโดเมนเว็บจริง
 6. (ถ้า build บนเครื่อง) ใส่ URL และ publishable key ของโปรเจกต์ใน `web/.env.production.local` ซึ่ง `npm run build` จะใช้แทน `.env.local` ส่วน `npm run dev` ยังต่อ Supabase local เหมือนเดิม
 
-### 2. Cloudflare Pages
+### 2. Cloudflare Workers
+
+เว็บจริงอยู่ที่ https://lucky-number.hallowsman.workers.dev/ ค่าใน `web/wrangler.jsonc` กำหนดให้อัปโหลดเฉพาะ `dist/` (Settings → Build):
 
 - Root directory: `web`
 - Build command: `npm run build`
-- Build output directory: `dist`
-- Environment variables: `VITE_SUPABASE_URL` และ `VITE_SUPABASE_ANON_KEY` (publishable/anon key จาก **Project Settings → API**) ซึ่งเปิดเผยได้ เพราะความปลอดภัยอยู่ที่ RLS
+- Deploy command: `npx wrangler deploy`
+- Build variables (ไม่ใช่ runtime variables เพราะ Vite ฝังค่าตอน build): `VITE_SUPABASE_URL` และ `VITE_SUPABASE_ANON_KEY` (publishable key จาก **Project Settings → API Keys**) ซึ่งเปิดเผยได้ เพราะความปลอดภัยอยู่ที่ RLS ถ้าไม่ได้ตั้ง build จะล้มพร้อมบอกชื่อตัวแปร
+
+หน้าแอดมินและจอแสดงผลเปิดได้ทั้ง `/admin.html` และ `/admin` (Cloudflare จะ redirect ตัดนามสกุลให้)
 
 ### 3. ก่อนวันงานทุกครั้ง
 

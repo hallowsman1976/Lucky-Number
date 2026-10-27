@@ -1,0 +1,9 @@
+// Cloudflare Workers (static assets): อัปโหลดเฉพาะผลลัพธ์จาก `npm run build`
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "lucky-number",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist"
+  }
+}
