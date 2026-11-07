@@ -94,6 +94,14 @@
             <button class="btn btn-muted" type="submit">บันทึกการแก้ไข</button>
           </form>
 
+          <div class="row draw-count-row">
+            <label for="drawCountInput" class="muted small">สุ่มครั้งละ</label>
+            <input id="drawCountInput" type="number" min="1" value="1" class="draw-count" />
+            <span class="muted small">คน</span>
+            <button id="drawOneBtn" class="btn btn-muted small-btn" type="button">ทีละคน</button>
+            <button id="drawAllBtn" class="btn btn-muted small-btn" type="button">ที่เหลือทั้งหมด</button>
+            <span class="muted small" id="drawHint"></span>
+          </div>
           <button id="drawBtn" class="btn btn-gold draw-btn" type="button">🎉 สุ่มผู้โชคดีคนถัดไป</button>
 
           <p class="muted small list-label">ผู้โชคดีรอบนี้</p>

@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import type { DisplayWinner } from '../lib/types';
-import { takeNewWinners } from './reveal';
+import { groupDraws, takeNewWinners } from './reveal';
 
-const winner = (id: string, drawn_at: string, forfeited = false): DisplayWinner => ({
+const winner = (id: string, drawn_at: string, forfeited = false, round_id = 'r1'): DisplayWinner => ({
   id,
-  round_id: 'r1',
+  round_id,
   round_name: 'ทองคำ',
   full_name: 'คน ' + id,
   unit: 'บำนาญ',
@@ -25,5 +25,18 @@ describe('takeNewWinners', () => {
     const seen = new Set<string>();
     expect(takeNewWinners(seen, [winner('x', '2026-01-01T00:00:01Z', true)])).toEqual([]);
     expect(seen.has('x')).toBe(true);
+  });
+});
+
+describe('groupDraws', () => {
+  it('puts winners drawn in the same call together, sorted by name', () => {
+    const t1 = '2026-01-01T00:00:01Z';
+    const t2 = '2026-01-01T00:00:02Z';
+    const groups = groupDraws([winner('a', t1), winner('c', t2), winner('b', t2), winner('d', t2, false, 'r2')]);
+    expect(groups.map((g) => g.map((w) => w.id))).toEqual([['a'], ['b', 'c'], ['d']]);
+  });
+
+  it('returns nothing for no winners', () => {
+    expect(groupDraws([])).toEqual([]);
   });
 });

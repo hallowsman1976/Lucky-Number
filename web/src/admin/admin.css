@@ -40,6 +40,8 @@
 
 .round-head { margin-bottom: 14px; }
 #editRoundForm { margin-bottom: 14px; }
+.draw-count-row { margin: 10px 0; }
+.draw-count { width: 84px; text-align: center; }
 .draw-btn { width: 100%; font-size: 18px; padding: 16px; }
 .list-label { margin: 14px 0 6px; }
 .winners-mini { max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }

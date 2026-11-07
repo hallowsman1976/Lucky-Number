@@ -95,6 +95,22 @@ html, body { height: 100%; overflow-x: hidden; overflow-y: auto; }
 .reveal-name { font-size: clamp(30px, 5.5vw, 60px); font-weight: 800; margin: 10px 0 6px; overflow-wrap: anywhere; }
 .reveal-unit { font-size: clamp(16px, 2.2vw, 24px); font-weight: 600; opacity: 0.85; }
 .reveal-id { font-size: 14px; margin-top: 10px; opacity: 0.6; }
+/* สุ่มพร้อมกันหลายคน: การ์ดกว้าง เปิดชื่อทีละใบ */
+.reveal-card.batch { width: min(1280px, 100%); max-height: calc(100vh - 32px); overflow-y: auto; padding: 28px 30px; }
+.reveal-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; margin-top: 16px;
+}
+.reveal-item {
+  background: rgba(255, 255, 255, 0.65); border-radius: 14px; padding: 12px 14px; text-align: left;
+  animation: popIn 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+.reveal-item .iname { font-size: clamp(17px, 1.9vw, 24px); font-weight: 800; overflow-wrap: anywhere; }
+.reveal-item .iunit { font-size: 14px; font-weight: 600; opacity: 0.8; }
+.reveal-item .iid { font-size: 12px; opacity: 0.6; }
+.reveal-grid.dense { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px; }
+.reveal-grid.dense .reveal-item { padding: 8px 10px; }
+.reveal-grid.dense .iname { font-size: clamp(14px, 1.4vw, 18px); }
+@keyframes popIn { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .confetti-piece {
   position: absolute; top: -20px; width: 10px; height: 16px; opacity: 0.95;
   animation: confettiFall linear forwards;
@@ -103,4 +119,5 @@ html, body { height: 100%; overflow-x: hidden; overflow-y: auto; }
 
 @media (prefers-reduced-motion: reduce) {
   .wheel, .wheel.spinning { animation-duration: 60s; }
+  .reveal-item { animation: none; }
 }

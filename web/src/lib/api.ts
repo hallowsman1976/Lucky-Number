@@ -30,7 +30,8 @@ export const api = {
   startRound: (name: string, target: number) => call<RoundInfo>('start_round', { p_name: name, p_target: target }),
   updateRound: (roundId: string, name: string, target: number) =>
     call<RoundInfo>('update_round', { p_round_id: roundId, p_name: name, p_target: target }),
-  drawNext: () => call<DrawResult>('draw_next'),
+  /** สุ่ม count คนพร้อมกัน (ไม่เกินจำนวนที่รอบยังขาด) */
+  drawMany: (count: number) => call<DrawResult>('draw_many', { p_count: count }),
   forfeitWinner: (winnerId: string) => call<null>('forfeit_winner', { p_winner_id: winnerId }),
   undoForfeit: (winnerId: string) => call<null>('undo_forfeit', { p_winner_id: winnerId }),
   disqualify: (registrationId: string) => call<null>('disqualify', { p_registration_id: registrationId }),

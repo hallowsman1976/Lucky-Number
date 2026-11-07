@@ -33,6 +33,19 @@ export function searchRegistrations(
   return registrations.filter((r) => r.member_id.includes(q) || r.full_name.toLowerCase().includes(q));
 }
 
+/** จำนวนสูงสุดที่สุ่มได้ในครั้งเดียว: ที่รอบยังขาด แต่ไม่เกินผู้มีสิทธิ์ที่เหลือ */
+export function drawLimit(round: RoundInfo | null, eligible: number): number {
+  if (!round) return 0;
+  return Math.max(0, Math.min(round.target - round.filled, eligible));
+}
+
+/** ค่าในช่องจำนวนที่จะสุ่ม ปรับให้อยู่ในช่วง 1..limit (ว่างหรือพิมพ์ผิดถือเป็น 1) */
+export function clampDrawCount(value: number, limit: number): number {
+  if (limit < 1) return 1;
+  if (!Number.isFinite(value) || value < 1) return 1;
+  return Math.min(Math.floor(value), limit);
+}
+
 /** ผู้โชคดีของรอบ (รวมคนที่สละสิทธิ์) เรียงตามเวลาที่ถูกสุ่ม */
 export function roundWinners(registrations: readonly AdminRegistration[], roundId: string): AdminRegistration[] {
   return registrations

@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import type { AdminRegistration, RoundInfo } from '../lib/types';
-import { computeStats, registrationStatus, roundWinners, searchRegistrations, winnersCsvRows } from './model';
+import {
+  clampDrawCount,
+  computeStats,
+  drawLimit,
+  registrationStatus,
+  roundWinners,
+  searchRegistrations,
+  winnersCsvRows,
+} from './model';
 
 const reg = (id: string, extra: Partial<AdminRegistration> = {}): AdminRegistration => ({
   id,
@@ -63,5 +71,27 @@ describe('winnersCsvRows', () => {
       [2, 'สมาชิก 5', 'ผู้โชคดี'],
     ]);
     expect(rows[1]?.[2]).toEqual({ text: '1004' });
+  });
+});
+
+describe('drawLimit', () => {
+  const round = (target: number, filled: number): RoundInfo => ({ id: 'r', seq: 1, name: 'ทอง', target, filled });
+
+  it('is what the round still needs, capped by the eligible pool', () => {
+    expect(drawLimit(round(10, 3), 50)).toBe(7);
+    expect(drawLimit(round(10, 3), 4)).toBe(4);
+    expect(drawLimit(round(5, 5), 50)).toBe(0);
+    expect(drawLimit(null, 50)).toBe(0);
+  });
+});
+
+describe('clampDrawCount', () => {
+  it('keeps the count between 1 and the limit', () => {
+    expect(clampDrawCount(3, 7)).toBe(3);
+    expect(clampDrawCount(20, 7)).toBe(7);
+    expect(clampDrawCount(0, 7)).toBe(1);
+    expect(clampDrawCount(Number.NaN, 7)).toBe(1);
+    expect(clampDrawCount(2.7, 7)).toBe(2);
+    expect(clampDrawCount(5, 0)).toBe(1);
   });
 });

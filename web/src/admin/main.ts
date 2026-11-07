@@ -11,7 +11,9 @@ import { toast } from '../lib/toast';
 import type { AdminRegistration, AdminState, DisplayMode, EventInfo, RoundInfo } from '../lib/types';
 import {
   STATUS_LABEL,
+  clampDrawCount,
   computeStats,
+  drawLimit,
   registrationStatus,
   registrationsCsvRows,
   roundWinners,
@@ -28,6 +30,8 @@ let busy = false;
 /** แอดมินกำลังพิมพ์แก้รอบอยู่ — ไม่เอาค่าจาก refresh ไปทับ */
 let editRoundDirty = false;
 let editRoundId: string | null = null;
+/** ช่องจำนวนที่จะสุ่มกลับเป็น 1 ทุกครั้งที่เริ่มรอบใหม่ */
+let drawCountRoundId: string | null = null;
 
 // ===== Session =====
 
@@ -157,9 +161,18 @@ function renderRound(round: RoundInfo | null, registrations: readonly AdminRegis
     $<HTMLInputElement>('editRoundTarget').value = String(round.target);
   }
 
-  const drawBtn = $<HTMLButtonElement>('drawBtn');
-  drawBtn.disabled = round === null || complete || eligible === 0;
-  drawBtn.textContent = round && !complete && eligible === 0 ? 'ไม่มีผู้มีสิทธิ์เหลือให้สุ่ม' : '🎉 สุ่มผู้โชคดีคนถัดไป';
+  const countInput = $<HTMLInputElement>('drawCountInput');
+  if (round && round.id !== drawCountRoundId) {
+    drawCountRoundId = round.id;
+    countInput.value = '1';
+  }
+  const limit = drawLimit(round, eligible);
+  countInput.max = String(Math.max(1, limit));
+  // ไม่ทับค่าที่แอดมินกำลังพิมพ์อยู่ (ตอนกดสุ่มจะปรับให้อยู่ในช่วงอีกที)
+  if (document.activeElement !== countInput) countInput.value = String(clampDrawCount(readTarget('drawCountInput'), limit));
+  for (const id of ['drawCountInput', 'drawOneBtn', 'drawAllBtn']) $<HTMLInputElement>(id).disabled = limit === 0;
+  $('drawHint').textContent = round && !complete ? `รอบนี้ยังขาดอีก ${round.target - round.filled} คน` : '';
+  renderDrawButton();
 
   const winners = round ? roundWinners(registrations, round.id) : [];
   $('roundWinners').replaceChildren(
@@ -173,6 +186,26 @@ function renderRound(round: RoundInfo | null, registrations: readonly AdminRegis
   $('newRoundHint').textContent = canStart
     ? `ผู้มีสิทธิ์เหลือ ${eligible} คน`
     : `ต้องสุ่มรอบปัจจุบันให้ครบ หรือแก้จำนวนที่ต้องการให้เท่ากับที่ได้ (${round?.filled ?? 0} คน) ก่อนเริ่มรอบใหม่`;
+}
+
+function currentDrawLimit(): number {
+  if (!state?.event) return 0;
+  return drawLimit(state.current_round, computeStats(state.registrations).eligible);
+}
+
+function renderDrawButton(): void {
+  const round = state?.event ? state.current_round : null;
+  const limit = currentDrawLimit();
+  const count = clampDrawCount(readTarget('drawCountInput'), limit);
+  const drawBtn = $<HTMLButtonElement>('drawBtn');
+  drawBtn.disabled = limit === 0;
+  if (round && round.filled < round.target && limit === 0) drawBtn.textContent = 'ไม่มีผู้มีสิทธิ์เหลือให้สุ่ม';
+  else drawBtn.textContent = count > 1 ? `🎉 สุ่มผู้โชคดีพร้อมกัน ${count} คน` : '🎉 สุ่มผู้โชคดีคนถัดไป';
+}
+
+function setDrawCount(count: number): void {
+  $<HTMLInputElement>('drawCountInput').value = String(clampDrawCount(count, currentDrawLimit()));
+  renderDrawButton();
 }
 
 function winnerRow(r: AdminRegistration, roundComplete: boolean): HTMLElement {
@@ -323,8 +356,18 @@ function wireActions(): void {
     );
   });
 
+  $('drawCountInput').addEventListener('input', renderDrawButton);
+  $('drawCountInput').addEventListener('change', () => setDrawCount(readTarget('drawCountInput')));
+  $('drawOneBtn').addEventListener('click', () => setDrawCount(1));
+  $('drawAllBtn').addEventListener('click', () => setDrawCount(currentDrawLimit()));
   $('drawBtn').addEventListener('click', () => {
-    void run(api.drawNext, (d) => `🎉 ผู้โชคดี: ${d.winner.full_name}`);
+    const count = clampDrawCount(readTarget('drawCountInput'), currentDrawLimit());
+    if (count > 1 && !confirm(`สุ่มผู้โชคดีพร้อมกัน ${count} คน?
+จอแสดงผลจะเปิดชื่อทั้ง ${count} คนพร้อมกัน`)) return;
+    void run(
+      () => api.drawMany(count),
+      (d) => (d.winners.length === 1 ? `🎉 ผู้โชคดี: ${d.winners[0]?.full_name}` : `🎉 ได้ผู้โชคดี ${d.winners.length} คน`),
+    );
   });
 
   $<HTMLFormElement>('startRoundForm').addEventListener('submit', (e) => {

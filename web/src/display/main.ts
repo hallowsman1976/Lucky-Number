@@ -6,12 +6,13 @@ import { $, h, sleep } from '../lib/dom';
 import { currentSiteUrls } from '../lib/format';
 import { watchTables } from '../lib/live';
 import type { DisplayMode, DisplayState, DisplayWinner } from '../lib/types';
-import { takeNewWinners } from './reveal';
+import { groupDraws, takeNewWinners } from './reveal';
 
 const seen = new Set<string>();
 /** ผู้โชคดีที่รอเปิดชื่อ — ซ่อนจากรายชื่อด้านล่างจนกว่าจะเปิดชื่อเสร็จ */
 const pending = new Set<string>();
-const queue: DisplayWinner[] = [];
+/** ชุดผู้โชคดีที่รอเปิดชื่อ (1 ชุด = การกดสุ่ม 1 ครั้ง) */
+const queue: DisplayWinner[][] = [];
 let lastState: DisplayState | null = null;
 let currentEventId: string | null = null;
 let primed = false;
@@ -86,7 +87,7 @@ function render(state: DisplayState): void {
   const fresh = takeNewWinners(seen, state.winners);
   if (primed && event.display_mode === 'wheel') {
     for (const w of fresh) pending.add(w.id);
-    queue.push(...fresh);
+    queue.push(...groupDraws(fresh));
   }
   primed = true;
   renderWinners(state.winners);
@@ -99,7 +100,7 @@ async function processQueue(): Promise<void> {
   try {
     for (let next = queue.shift(); next; next = queue.shift()) {
       await spinAndReveal(next);
-      pending.delete(next.id);
+      for (const w of next) pending.delete(w.id);
       if (lastState?.event) renderWinners(lastState.winners);
     }
   } finally {
@@ -107,24 +108,33 @@ async function processQueue(): Promise<void> {
   }
 }
 
-async function spinAndReveal(winner: DisplayWinner): Promise<void> {
+async function spinAndReveal(batch: readonly DisplayWinner[]): Promise<void> {
+  const first = batch[0];
+  if (!first) return;
   const wheel = $('wheel');
   const slot = $('slotDisplay');
   slot.classList.remove('revealed');
   wheel.classList.add('spinning');
 
-  // รายชื่อที่หมุนเป็นแค่ effect — ผลจริงตัดสินแล้วที่ draw_next()
+  // รายชื่อที่หมุนเป็นแค่ effect — ผลจริงตัดสินแล้วที่ draw_many()
   const res = await api.getEffectNames();
-  const names = res.ok && res.data.length > 0 ? res.data : [winner.full_name];
+  const names = res.ok && res.data.length > 0 ? res.data : batch.map((w) => w.full_name);
   await cycleNames(slot, names, 2600, 70);
   await cycleNames(slot, names, 900, 160);
 
   wheel.classList.remove('spinning');
-  slot.textContent = winner.full_name;
+  slot.textContent = batch.length === 1 ? first.full_name : `ได้ผู้โชคดี ${batch.length} คน`;
   slot.classList.add('revealed');
 
-  showReveal(winner);
-  await sleep(4200);
+  if (batch.length === 1) {
+    showReveal(first);
+    await sleep(4200);
+  } else {
+    // เปิดชื่อทีละใบรวมไม่เกิน ~3 วินาที แล้วค้างไว้ให้อ่าน (ยิ่งหลายคนยิ่งนาน สูงสุด 25 วินาที)
+    const staggerMs = Math.min(150, 3000 / batch.length);
+    showBatchReveal(batch, staggerMs);
+    await sleep(Math.min(staggerMs * batch.length + 6000 + batch.length * 250, 25_000));
+  }
   hideReveal();
   await sleep(400);
 }
@@ -143,12 +153,44 @@ function cycleNames(el: HTMLElement, names: readonly string[], durationMs: numbe
 }
 
 function showReveal(winner: DisplayWinner): void {
+  $('revealLabel').textContent = '🎉 ผู้โชคดี 🎉';
+  $('revealSingle').hidden = false;
+  $('revealGrid').hidden = true;
+  $('revealCard').classList.remove('batch');
   $('revealName').textContent = winner.full_name;
   $('revealUnit').textContent = winner.unit;
   $('revealId').textContent = 'เลขสมาชิก ' + winner.member_id_masked;
   const overlay = $('revealOverlay');
   overlay.hidden = false;
   requestAnimationFrame(() => $('revealCard').classList.add('show'));
+  burstConfetti(overlay);
+}
+
+function showBatchReveal(batch: readonly DisplayWinner[], staggerMs: number): void {
+  $('revealLabel').textContent = `🎉 ผู้โชคดี ${batch.length} คน — ${batch[0]?.round_name ?? ''} 🎉`;
+  $('revealSingle').hidden = true;
+  const grid = $('revealGrid');
+  grid.hidden = false;
+  grid.classList.toggle('dense', batch.length > 24);
+  grid.replaceChildren(
+    ...batch.map((w, i) => {
+      const item = h(
+        'div',
+        { class: 'reveal-item' },
+        h('div', { class: 'iname' }, w.full_name),
+        h('div', { class: 'iunit' }, w.unit),
+        h('div', { class: 'iid' }, 'เลขสมาชิก ' + w.member_id_masked),
+      );
+      item.style.animationDelay = `${Math.round(i * staggerMs)}ms`;
+      return item;
+    }),
+  );
+  const card = $('revealCard');
+  card.classList.add('batch');
+  card.scrollTop = 0;
+  const overlay = $('revealOverlay');
+  overlay.hidden = false;
+  requestAnimationFrame(() => card.classList.add('show'));
   burstConfetti(overlay);
 }
 

@@ -78,8 +78,15 @@ export type AdminState =
       registrations: AdminRegistration[];
     };
 
+export interface DrawnWinner {
+  id: string;
+  member_id: string;
+  full_name: string;
+  unit: string;
+}
+
 export interface DrawResult {
-  winner: { id: string; member_id: string; full_name: string; unit: string };
+  winners: DrawnWinner[];
   round: RoundInfo;
   eligible_count: number;
 }
