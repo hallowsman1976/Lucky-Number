@@ -1,7 +1,7 @@
 import './register.css';
 import { api } from '../lib/api';
 import { $, h } from '../lib/dom';
-import { toast } from '../lib/toast';
+import { alertError, alertWarning } from '../lib/alert';
 
 const form = $<HTMLFormElement>('formView');
 const memberIdInput = $<HTMLInputElement>('memberId');
@@ -33,7 +33,7 @@ async function init(): Promise<void> {
   const res = await api.getRegistrationForm();
   if (!res.ok) {
     $('eventTitle').textContent = 'โหลดข้อมูลไม่สำเร็จ';
-    toast(res.message, 'error');
+    void alertError(res.message, 'โหลดข้อมูลไม่สำเร็จ');
     return;
   }
 
@@ -61,10 +61,10 @@ form.addEventListener('submit', async (e) => {
   const fullName = fullNameInput.value.trim();
   const unitId = Number(unitSelect.value);
 
-  if (!memberId) return toast('กรุณากรอกเลขสมาชิก', 'error');
-  if (!/^[0-9]+$/.test(memberId)) return toast('เลขสมาชิกต้องเป็นตัวเลขเท่านั้น', 'error');
-  if (!fullName) return toast('กรุณากรอกชื่อ-นามสกุล', 'error');
-  if (!unitId) return toast('กรุณาเลือกหน่วยงาน', 'error');
+  if (!memberId) return alertWarning('กรุณากรอกเลขสมาชิก', memberIdInput);
+  if (!/^[0-9]+$/.test(memberId)) return alertWarning('เลขสมาชิกต้องเป็นตัวเลขเท่านั้น', memberIdInput);
+  if (!fullName) return alertWarning('กรุณากรอกชื่อ-นามสกุล', fullNameInput);
+  if (!unitId) return alertWarning('กรุณาเลือกหน่วยงาน', unitSelect);
 
   setSubmitting(true);
   const res = await api.register(memberId, fullName, unitId);
@@ -73,7 +73,7 @@ form.addEventListener('submit', async (e) => {
     return;
   }
   setSubmitting(false);
-  toast(res.message, 'error');
+  void alertError(res.message, 'ลงทะเบียนไม่สำเร็จ');
 });
 
 void init();

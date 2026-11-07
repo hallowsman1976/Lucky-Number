@@ -7,7 +7,7 @@ import { toThaiMessage } from '../lib/errors';
 import { currentSiteUrls } from '../lib/format';
 import { watchTables } from '../lib/live';
 import { supabase } from '../lib/supabase';
-import { toast } from '../lib/toast';
+import { alertError, alertWarning, confirmAction, toast } from '../lib/alert';
 import type { AdminRegistration, AdminState, DisplayMode, EventInfo, RoundInfo } from '../lib/types';
 import {
   STATUS_LABEL,
@@ -48,9 +48,9 @@ async function enterDashboard(email: string | undefined): Promise<void> {
   if (!res.ok) {
     if (res.message.startsWith(NOT_ADMIN)) {
       await supabase.auth.signOut();
-      toast('บัญชีนี้ไม่มีสิทธิ์แอดมิน', 'error');
+      void alertError('บัญชีนี้ไม่มีสิทธิ์แอดมิน', 'เข้าสู่ระบบไม่สำเร็จ');
     } else {
-      toast(res.message, 'error');
+      void alertError(res.message, 'โหลดข้อมูลไม่สำเร็จ');
     }
     showLogin();
     return;
@@ -89,7 +89,7 @@ async function run<T>(action: () => Promise<Result<T>>, success?: (data: T) => s
   $('dashboard').classList.add('busy');
   try {
     const res = await action();
-    if (!res.ok) toast(res.message, 'error');
+    if (!res.ok) void alertError(res.message);
     else {
       if (success) toast(success(res.data), 'success');
       await refresh();
@@ -220,8 +220,15 @@ function winnerRow(r: AdminRegistration, roundComplete: boolean): HTMLElement {
     const winnerId = r.winner!.id;
     if (forfeited) {
       void run(() => api.undoForfeit(winnerId), () => `${r.full_name} กลับมาเป็นผู้โชคดีแล้ว`);
-    } else if (confirm(`ยืนยันว่า ${r.full_name} สละสิทธิ์?\nจากนั้นสุ่มคนแทนในรอบนี้ได้`)) {
-      void run(() => api.forfeitWinner(winnerId), () => `${r.full_name} สละสิทธิ์แล้ว สุ่มคนแทนได้เลย`);
+    } else {
+      void confirmAction({
+        title: `${r.full_name} สละสิทธิ์?`,
+        text: 'จากนั้นสุ่มคนแทนในรอบนี้ได้',
+        confirmText: 'สละสิทธิ์',
+        danger: true,
+      }).then((ok) => {
+        if (ok) void run(() => api.forfeitWinner(winnerId), () => `${r.full_name} สละสิทธิ์แล้ว สุ่มคนแทนได้เลย`);
+      });
     }
   });
   return h(
@@ -251,8 +258,14 @@ function personRow(r: AdminRegistration): HTMLElement {
   let action: HTMLElement | null = null;
   if (status === 'eligible') {
     action = h('button', { class: 'btn btn-danger small-btn', type: 'button' }, 'ตัดสิทธิ์');
-    action.addEventListener('click', () => {
-      if (!confirm(`ตัดสิทธิ์ ${r.full_name} (เลขสมาชิก ${r.member_id})?\nคนนี้จะไม่ถูกสุ่มจนกว่าจะคืนสิทธิ์`)) return;
+    action.addEventListener('click', async () => {
+      const ok = await confirmAction({
+        title: `ตัดสิทธิ์ ${r.full_name}?`,
+        text: `เลขสมาชิก ${r.member_id}\nคนนี้จะไม่ถูกสุ่มจนกว่าจะคืนสิทธิ์`,
+        confirmText: 'ตัดสิทธิ์',
+        danger: true,
+      });
+      if (!ok) return;
       void run(() => api.disqualify(r.id), () => `ตัดสิทธิ์ ${r.full_name} แล้ว`);
     });
   } else if (status === 'disqualified') {
@@ -291,12 +304,24 @@ function setDisplayMode(mode: DisplayMode): void {
   );
 }
 
-function createEvent(input: HTMLInputElement, confirmFirst: boolean): void {
+async function createEvent(input: HTMLInputElement, confirmFirst: boolean): Promise<void> {
   const title = input.value.trim();
-  if (!title) return toast('กรุณาตั้งชื่องาน', 'error');
+  if (!title) return alertWarning('กรุณาตั้งชื่องาน', input);
   if (confirmFirst) {
-    if (!confirm(`เริ่มงานใหม่ "${title}"?\nงานปัจจุบันจะถูกปิด และเริ่มนับผู้ลงทะเบียน/ผู้โชคดีใหม่`)) return;
-    if (!confirm('ยืนยันอีกครั้ง — จอแสดงผลและฟอร์มลงทะเบียนจะเปลี่ยนไปใช้งานใหม่ทันที')) return;
+    const first = await confirmAction({
+      title: `เริ่มงานใหม่ "${title}"?`,
+      text: 'งานปัจจุบันจะถูกปิด และเริ่มนับผู้ลงทะเบียน/ผู้โชคดีใหม่',
+      confirmText: 'ถัดไป',
+      danger: true,
+    });
+    if (!first) return;
+    const second = await confirmAction({
+      title: 'ยืนยันอีกครั้ง',
+      text: 'จอแสดงผลและฟอร์มลงทะเบียนจะเปลี่ยนไปใช้งานใหม่ทันที',
+      confirmText: 'เริ่มงานใหม่',
+      danger: true,
+    });
+    if (!second) return;
   }
   void run(() => api.createEvent(title), () => `เริ่มงาน "${title}" แล้ว`).then((res) => {
     if (res.ok) input.value = '';
@@ -313,7 +338,7 @@ function wireActions(): void {
       password: $<HTMLInputElement>('passwordInput').value,
     });
     btn.disabled = false;
-    if (error) return toast(toThaiMessage(error), 'error');
+    if (error) return alertError(toThaiMessage(error), 'เข้าสู่ระบบไม่สำเร็จ');
     $<HTMLInputElement>('passwordInput').value = '';
     await enterDashboard(data.user?.email);
   });
@@ -326,17 +351,26 @@ function wireActions(): void {
 
   $<HTMLFormElement>('createFirstEventForm').addEventListener('submit', (e) => {
     e.preventDefault();
-    createEvent($<HTMLInputElement>('firstEventTitle'), false);
+    void createEvent($<HTMLInputElement>('firstEventTitle'), false);
   });
   $<HTMLFormElement>('newEventForm').addEventListener('submit', (e) => {
     e.preventDefault();
-    createEvent($<HTMLInputElement>('newEventTitle'), true);
+    void createEvent($<HTMLInputElement>('newEventTitle'), true);
   });
 
-  $('toggleRegistrationBtn').addEventListener('click', () => {
+  $('toggleRegistrationBtn').addEventListener('click', async () => {
     if (!state?.event) return;
     const open = !state.event.registration_open;
-    if (!open && !confirm('ปิดรับลงทะเบียน? คนที่สแกน QR หลังจากนี้จะลงทะเบียนไม่ได้')) return;
+    if (
+      !open &&
+      !(await confirmAction({
+        title: 'ปิดรับลงทะเบียน?',
+        text: 'คนที่สแกน QR หลังจากนี้จะลงทะเบียนไม่ได้',
+        confirmText: 'ปิดรับลงทะเบียน',
+        danger: true,
+      }))
+    )
+      return;
     void run(() => api.setRegistrationOpen(open), () => (open ? 'เปิดรับลงทะเบียนแล้ว' : 'ปิดรับลงทะเบียนแล้ว'));
   });
   $('btnModeRegister').addEventListener('click', () => setDisplayMode('register'));
@@ -360,10 +394,17 @@ function wireActions(): void {
   $('drawCountInput').addEventListener('change', () => setDrawCount(readTarget('drawCountInput')));
   $('drawOneBtn').addEventListener('click', () => setDrawCount(1));
   $('drawAllBtn').addEventListener('click', () => setDrawCount(currentDrawLimit()));
-  $('drawBtn').addEventListener('click', () => {
+  $('drawBtn').addEventListener('click', async () => {
     const count = clampDrawCount(readTarget('drawCountInput'), currentDrawLimit());
-    if (count > 1 && !confirm(`สุ่มผู้โชคดีพร้อมกัน ${count} คน?
-จอแสดงผลจะเปิดชื่อทั้ง ${count} คนพร้อมกัน`)) return;
+    if (
+      count > 1 &&
+      !(await confirmAction({
+        title: `สุ่มผู้โชคดีพร้อมกัน ${count} คน?`,
+        text: `จอแสดงผลจะเปิดชื่อทั้ง ${count} คนพร้อมกัน`,
+        confirmText: `🎉 สุ่ม ${count} คน`,
+      }))
+    )
+      return;
     void run(
       () => api.drawMany(count),
       (d) => (d.winners.length === 1 ? `🎉 ผู้โชคดี: ${d.winners[0]?.full_name}` : `🎉 ได้ผู้โชคดี ${d.winners.length} คน`),

@@ -133,16 +133,12 @@ input[type='text']:hover, select:hover { border-color: var(--primary); }
 .status-icon.success { color: var(--success); }
 .status-icon.muted { color: var(--text-faint); }
 
-.toast {
-  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
-  padding: 13px 18px; border-radius: var(--radius-md);
-  font-size: 14px; font-weight: 700;
-  box-shadow: var(--shadow-card);
-  z-index: 9999; max-width: calc(100vw - 32px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  background: var(--surface); color: var(--text);
-  border: 1.5px solid var(--surface-border);
+/* SweetAlert (src/lib/alert.ts) */
+:root {
+  --alert-bg: var(--surface);
+  --alert-text: var(--text);
+  --alert-confirm: var(--primary);
+  --alert-confirm-text: var(--on-primary);
+  --alert-cancel: var(--text-faint);
+  --alert-danger: var(--danger);
 }
-.toast-error { border-color: var(--danger); color: var(--danger); }
-.toast-success { border-color: var(--success); color: var(--success); }
-.toast-leaving { opacity: 0; transform: translateX(-50%) translateY(8px); }

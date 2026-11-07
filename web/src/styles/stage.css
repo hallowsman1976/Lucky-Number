@@ -82,18 +82,15 @@ label { font-weight: 700; font-size: 14px; color: var(--text-muted); display: bl
   background: rgba(255, 255, 255, 0.14); font-size: 13px; font-weight: 700;
 }
 
-.toast {
-  position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%);
-  color: #08132b; font-weight: 700;
-  padding: 14px 22px; border-radius: 14px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  z-index: 9999; max-width: calc(100vw - 32px); text-align: center;
-  transition: opacity 0.3s;
-  background: #38bdf8;
+/* SweetAlert (src/lib/alert.ts) */
+:root {
+  --alert-bg: #1e1b4b;
+  --alert-text: #ffffff;
+  --alert-confirm: var(--accent-2);
+  --alert-confirm-text: #08132b;
+  --alert-cancel: rgba(255, 255, 255, 0.18);
+  --alert-danger: var(--danger);
 }
-.toast-success { background: #22c55e; }
-.toast-error { background: #ef4444; color: #fff; }
-.toast-leaving { opacity: 0; }
 
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.25); border-radius: 8px; }

@@ -1,0 +1,20 @@
+/* สีของ SweetAlert ตามธีมของแต่ละหน้า (แต่ละหน้ากำหนด --alert-* เองได้) */
+body .swal2-container {
+  --swal2-background: var(--alert-bg, #fff);
+  --swal2-color: var(--alert-text, #1f2937);
+  --swal2-border-radius: 18px;
+  --swal2-confirm-button-background-color: var(--alert-confirm, #6d28d9);
+  --swal2-confirm-button-color: var(--alert-confirm-text, #fff);
+  --swal2-cancel-button-background-color: var(--alert-cancel, #6b7280);
+  --swal2-confirm-button-border-radius: 12px;
+  --swal2-cancel-button-border-radius: 12px;
+  font-family: inherit;
+}
+body .swal2-container .swal2-styled.swal2-confirm.is-danger {
+  --swal2-confirm-button-background-color: var(--alert-danger, #dc2626);
+  --swal2-confirm-button-color: #fff;
+}
+.swal2-popup .swal2-title { font-size: 1.4em; line-height: 1.4; }
+.swal2-popup .swal2-html-container { white-space: pre-line; line-height: 1.6; }
+.swal2-popup.swal2-toast .swal2-title { font-size: 1em; }
+.swal2-styled { font-weight: 700; }

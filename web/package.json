@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
-    "qrcode": "^1.5.4"
+    "qrcode": "^1.5.4",
+    "sweetalert2": "11.26.25"
   },
   "devDependencies": {
     "@types/qrcode": "^1.5.6",
